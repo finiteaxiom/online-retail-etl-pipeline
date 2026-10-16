@@ -1,0 +1,53 @@
+name: online-retail-etl
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DOCKER_MYSQL_ROOT_PASSWORD:?请配置容器root密码}
+      MYSQL_DATABASE: online_retail_etl
+      MYSQL_USER: retail_etl
+      MYSQL_PASSWORD: ${DOCKER_MYSQL_PASSWORD:?请配置容器项目账号密码}
+
+    ports:
+      - "127.0.0.1:3307:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          MYSQL_PWD="$${MYSQL_PASSWORD}"
+          mysql --protocol=TCP
+          -h 127.0.0.1
+          -u "$${MYSQL_USER}"
+          "$${MYSQL_DATABASE}"
+          -e "SELECT 1" > /dev/null 2>&1
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  etl:
+    build: .
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: "3306"
+      MYSQL_DATABASE: online_retail_etl
+      MYSQL_USER: retail_etl
+      MYSQL_PASSWORD: ${DOCKER_MYSQL_PASSWORD:?请配置容器项目账号密码}
+
+    volumes:
+      - ./data.csv:/app/data.csv:ro
+      - ./output:/app/output
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    restart: "no"
+
+volumes:
+  mysql_data:

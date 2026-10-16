@@ -2,6 +2,31 @@
 
 从 `online-retail-analysis` 迁移的全量批处理项目。读取根目录 `data.csv`，使用 Python 清洗并完成经营、商品和客户分析，将同一批结果写入 MySQL 并导出 CSV。
 
+## 数据来源
+
+本项目沿用 [online-retail-analysis](https://github.com/finiteaxiom/online-retail-analysis) 的数据集，来源信息参考该项目 README。
+
+| 项目 | 信息 |
+| --- | --- |
+| 数据集名称 | E-Commerce Data |
+| 下载平台 | Kaggle |
+| Kaggle 上传者 | CARRIE |
+| 原始数据来源 | UCI Machine Learning Repository 的 Online Retail 数据集 |
+| Kaggle 页面 | [carrie1/ecommerce-data](https://www.kaggle.com/datasets/carrie1/ecommerce-data) |
+| 许可证说明 | 原分析项目记录 Kaggle 页面为 **Unknown**；本项目不据此推断其他许可证，使用条件以数据源页面为准 |
+
+原始 CSV 不随本 Git 仓库提交，也不打包到 Docker 镜像中。请从上述 Kaggle 页面下载并解压，将 `data.csv` 放在本项目根目录，与 `run_etl.py`、`compose.yaml` 同级。注意：本项目使用的路径是 `./data.csv`，与旧项目的 `data/raw/data.csv` 不同。
+
+```text
+online-retail-etl-pipeline/
+├── data.csv             # 自行下载，Git 和 Docker 镜像均排除
+├── run_etl.py
+├── compose.yaml
+└── retail_etl/
+```
+
+容器运行时通过只读挂载 `/app/data.csv` 读取该文件。本项目展示数据工程与分析实现，不将原始交易数据声明为自行采集或自有数据。
+
 ## 首次运行
 
 要求 Python 3.10+、MySQL 8.0+，并已创建 `online_retail_etl` 数据库。本机已配置项目账号 `retail_etl`（在本地 `.env` 中设置）；示例配置默认账号为 root。SQLyog 用于查看 MySQL 表，不需要在 Python 运行期间保持打开。
